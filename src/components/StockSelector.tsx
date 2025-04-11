@@ -63,7 +63,7 @@ const StockSelector: React.FC<StockSelectorProps> = ({
           <CommandInput placeholder="Search stock..." />
           <CommandEmpty>No stock found.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-y-auto">
-            {Array.isArray(stocks) && stocks.map((stock) => (
+            {Array.isArray(stocks) && stocks.length > 0 ? stocks.map((stock) => (
               <CommandItem
                 key={stock.symbol}
                 value={`${stock.symbol} ${stock.name}`}
@@ -83,7 +83,11 @@ const StockSelector: React.FC<StockSelectorProps> = ({
                   <span className="text-xs text-muted-foreground">{stock.name}</span>
                 </div>
               </CommandItem>
-            ))}
+            )) : (
+              <div className="p-4 text-sm text-muted-foreground text-center">
+                No stocks available
+              </div>
+            )}
           </CommandGroup>
         </Command>
       </PopoverContent>
