@@ -5,6 +5,7 @@ import { formatCurrency, calculatePercentChange } from "@/utils/stockUtils";
 import { ArrowUpIcon, ArrowDownIcon, InfoIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { stockOptions } from "@/config/stocks";
 
 interface StockSummaryProps {
   symbol: string;
@@ -27,14 +28,20 @@ const StockSummary: React.FC<StockSummaryProps> = ({
   // Determine if price is up or down
   const isPriceUp = percentChange !== null ? percentChange >= 0 : false;
   
+  const stockInfo = stockOptions.find(stock => stock.symbol === symbol);
+  const stockName = stockInfo?.name || symbol;
+  
   return (
-    <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
+    <Card className="shadow-md hover:shadow-lg transition-shadow duration-300 backdrop-blur-sm bg-white/60 border-zinc-100">
       <CardHeader className="pb-2 flex flex-row justify-between items-center">
-        <CardTitle className="text-xl">{symbol}</CardTitle>
+        <div>
+          <CardTitle className="text-xl font-bold">{symbol}</CardTitle>
+          <p className="text-sm text-zinc-500">{stockName}</p>
+        </div>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <InfoIcon className="h-4 w-4 text-muted-foreground cursor-help" />
+              <InfoIcon className="h-4 w-4 text-zinc-400 cursor-help" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Latest stock price information</p>
@@ -50,25 +57,25 @@ const StockSummary: React.FC<StockSummaryProps> = ({
           </div>
         ) : (
           <>
-            <div className="text-3xl font-bold">
+            <div className="text-3xl font-bold bg-gradient-to-r from-zinc-800 to-zinc-600 bg-clip-text text-transparent">
               {latestPrice ? formatCurrency(latestPrice) : "N/A"}
             </div>
             
             {percentChange !== null && (
-              <div className={`flex items-center mt-1 ${isPriceUp ? "text-buy" : "text-sell"}`}>
+              <div className={`flex items-center mt-1 ${isPriceUp ? "text-emerald-500" : "text-rose-500"}`}>
                 {isPriceUp ? (
                   <ArrowUpIcon className="h-4 w-4 mr-1" />
                 ) : (
                   <ArrowDownIcon className="h-4 w-4 mr-1" />
                 )}
                 <span className="text-sm font-medium">
-                  {percentChange.toFixed(2)}% {isPriceUp ? "up" : "down"}
+                  {Math.abs(percentChange).toFixed(2)}% {isPriceUp ? "up" : "down"}
                 </span>
               </div>
             )}
             
             {previousClose && (
-              <div className="text-xs text-muted-foreground mt-2">
+              <div className="text-xs text-zinc-400 mt-2">
                 Previous close: {formatCurrency(previousClose)}
               </div>
             )}

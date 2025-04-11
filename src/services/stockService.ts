@@ -10,21 +10,41 @@ export interface StockData {
 const generateMockStockData = (symbol: string): StockData[] => {
   const data: StockData[] = [];
   const today = new Date();
-  const basePrice = symbol === "SNOW" ? 155 : 100; // Snowflake around $155
+  
+  // Base prices for different stocks
+  const basePrices: {[key: string]: number} = {
+    "SNOW": 155,
+    "AAPL": 180,
+    "MSFT": 410, 
+    "GOOGL": 170,
+    "AMZN": 185,
+    "TSLA": 220,
+    "META": 470,
+    "NVDA": 890,
+    "JPM": 190,
+    "V": 280
+  };
+  
+  // Set base price, default to 100 if symbol not found
+  const basePrice = basePrices[symbol] || 100;
+  
+  // Volatility factor - higher for more volatile stocks
+  const volatilityFactor = symbol === "TSLA" || symbol === "NVDA" ? 2 : 1;
   
   // Generate 6 months of daily data
   for (let i = 180; i >= 0; i--) {
     const date = new Date();
     date.setDate(today.getDate() - i);
     
-    // Create some realistic price movements
-    const randomChange = (Math.random() - 0.5) * 3; // Random daily change
-    const trendComponent = Math.sin(i / 30) * 15; // Cyclical trend
-    const close = basePrice + trendComponent + (i / 5) + randomChange;
+    // Create some realistic price movements with more variability for volatile stocks
+    const randomChange = (Math.random() - 0.5) * 3 * volatilityFactor;
+    const trendComponent = Math.sin(i / 30) * 15;
+    const upwardTrend = (i / 10) * (Math.random() > 0.3 ? 1 : -1); // Sometimes downtrend
+    const close = basePrice + trendComponent + upwardTrend + randomChange;
     
     data.push({
       date: new Date(date),
-      close: Number(close.toFixed(2))
+      close: Number(Math.max(close, basePrice * 0.5).toFixed(2)) // Ensure no negative prices
     });
   }
   

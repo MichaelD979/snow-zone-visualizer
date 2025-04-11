@@ -6,34 +6,38 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 95.5%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
 
-    --muted: 217.2 32.6% 95.5%;
-    --muted-foreground: 215 20.2% 45.1%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 217.2 32.6% 95.5%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 90.5%;
-    --input: 217.2 32.6% 90.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 215 20.2% 65.1%;
 
     --radius: 0.75rem;
+
+    /* Custom colors */
+    --buy: 142 72% 29%;
+    --sell: 0 72% 51%;
   }
 }
 
@@ -45,6 +49,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
   
   /* Custom scrollbar styling */
@@ -54,16 +59,50 @@
   }
   
   ::-webkit-scrollbar-track {
-    background: hsl(var(--secondary));
+    background: hsl(var(--secondary) / 0.5);
     border-radius: 4px;
   }
   
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.6);
+    background: hsl(var(--primary) / 0.4);
     border-radius: 4px;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.6);
   }
+  
+  /* Helpers */
+  .glass-effect {
+    @apply bg-white/50 backdrop-blur-sm border border-white/20;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Plotly customizations */
+.plotly .modebar-btn path {
+  fill: #71717A !important;
+}
+
+.plotly .modebar-btn.active path,
+.plotly .modebar-btn:hover path {
+  fill: hsl(var(--primary)) !important;
+}
+
+.plotly .modebar {
+  right: 8px !important;
+}
+
+/* Range slider customizations */
+.plotly .rangeslider-container {
+  background-color: #F8FAFC !important;
+}
+
+.plotly .rangeslider-handle {
+  stroke: hsl(var(--primary)) !important;
+  stroke-width: 1.5px !important;
+  fill: white !important;
 }
