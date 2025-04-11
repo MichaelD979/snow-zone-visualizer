@@ -1,15 +1,23 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import StockChart from "@/components/StockChart";
 import StockSummary from "@/components/StockSummary";
 import TradingZones from "@/components/TradingZones";
 import StockSelector from "@/components/StockSelector";
-import { fetchHistoricalData, fetchLatestPrice, StockData } from "@/services/stockService";
+import {
+  fetchHistoricalData,
+  fetchLatestPrice,
+  StockData,
+} from "@/services/stockService";
 import { RefreshCwIcon, TrendingUpIcon, InfoIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { stockOptions } from "@/config/stocks";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const DEFAULT_STOCK_SYMBOL = "SNOW";
 
@@ -29,27 +37,26 @@ const Index = () => {
     try {
       // Fetch historical data
       const data = await fetchHistoricalData(symbol);
-      
+
       if (data.length === 0) {
         throw new Error("No historical data available");
       }
-      
+
       setStockData(data);
-      
+
       // Set previous close from historical data
       if (data.length > 0) {
         setPreviousClose(data[data.length - 1].close);
       }
-      
+
       // Fetch latest price
       const price = await fetchLatestPrice(symbol);
       if (price === null) {
         throw new Error("Could not fetch latest price");
       }
-      
+
       setLatestPrice(price);
       setLastUpdated(new Date());
-      
     } catch (error) {
       console.error("Failed to load data:", error);
       setError((error as Error).message || "Failed to load stock data");
@@ -89,47 +96,47 @@ const Index = () => {
                 Visualizing buy and sell zones for top market stocks
               </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center w-full lg:w-auto">
-              <StockSelector 
-                stocks={stockOptions} 
+              <StockSelector
+                stocks={stockOptions}
                 selectedStock={stockSymbol}
                 onSelectStock={handleStockChange}
                 isLoading={isLoading}
               />
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 onClick={() => loadData(stockSymbol)}
                 disabled={isLoading}
                 className="font-medium shadow-sm transition-all hover:shadow-md bg-white/50 hover:bg-white/80"
               >
-                <RefreshCwIcon className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+                <RefreshCwIcon
+                  className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                />
                 Refresh Data
               </Button>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             {lastUpdated && (
               <p className="text-sm text-zinc-400">
                 Last updated: {lastUpdated.toLocaleTimeString()}
               </p>
             )}
-            
+
             {error && (
-              <p className="text-sm text-destructive">
-                Error: {error}
-              </p>
+              <p className="text-sm text-destructive">Error: {error}</p>
             )}
           </div>
         </header>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="md:col-span-1">
-            <StockSummary 
-              symbol={stockSymbol} 
-              latestPrice={latestPrice} 
+            <StockSummary
+              symbol={stockSymbol}
+              latestPrice={latestPrice}
               previousClose={previousClose}
               isLoading={isLoading}
             />
@@ -138,36 +145,35 @@ const Index = () => {
             <TradingZones currentPrice={latestPrice} />
           </div>
         </div>
-        
+
         <div className="mb-8 shadow-lg rounded-lg overflow-hidden backdrop-blur-sm bg-white/60 border border-zinc-100">
-          <StockChart 
-            data={stockData} 
-            symbol={stockSymbol} 
-            isLoading={isLoading} 
+          <StockChart
+            data={stockData}
+            symbol={stockSymbol}
+            isLoading={isLoading}
           />
         </div>
-        
-        <footer className="flex justify-between items-start py-6 px-4 border-t border-zinc-100 text-sm text-zinc-400 mt-8">
+
+        <footer className="flex justify-center items-start py-6 px-4 border-t border-zinc-100 text-sm text-zinc-400 mt-8">
           <div>
-            <p>
-              Data provided by Yahoo Finance. Trading zones are for demonstration purposes only.
-            </p>
-            <p className="mt-1">
+            <p>Data provided by Yahoo Finance.</p>
+            {/*   <p className="mt-1">
               This application is not financial advice. Always do your own research before investing.
-            </p>
+            </p> */}
           </div>
-          
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="cursor-help">
+                <div className="cursor-help ml-2">
                   <InfoIcon className="h-5 w-5 text-zinc-300 hover:text-zinc-400 transition-colors" />
                 </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p className="text-xs max-w-[200px]">
-                  Buy and sell zones are pre-configured levels for demonstration.
-                  These zones would normally be calculated based on technical analysis.
+                  Buy and sell zones are pre-configured levels for
+                  demonstration. These zones would normally be calculated based
+                  on technical analysis.
                 </p>
               </TooltipContent>
             </Tooltip>
