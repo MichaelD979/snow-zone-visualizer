@@ -9,11 +9,10 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
-      "/yahoo-finance": {
-        target: "https://finance.yahoo.com",
+      "/api": {
+        target: "http://localhost:3001",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/yahoo-finance/, ""),
-        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },
@@ -26,25 +25,25 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
-    // Improved Polyfills for Node.js process global
     "process.env": JSON.stringify({}),
-    "process.browser": true,
+    "process.browser": JSON.stringify(true),
     "process.version": JSON.stringify("16.14.0"),
-    // Properly define process.nextTick as a function (not wrapped in JSON.stringify)
-    "process.nextTick": "function(cb) { return setTimeout(cb, 0); }",
-    // Add URLSearchParams polyfill - properly defined as constructor functions
+    "process.nextTick": "(function(cb) { return setTimeout(cb, 0); })",
+    global: "(typeof window !== 'undefined' ? window : global)",
     "global.URLSearchParams":
       "(typeof window !== 'undefined' && window.URLSearchParams) || URLSearchParams",
     URLSearchParams:
       "(typeof window !== 'undefined' && window.URLSearchParams) || URLSearchParams",
-    URLSearchParams2:
-      "(typeof window !== 'undefined' && window.URLSearchParams) || URLSearchParams",
-    global: "(typeof window !== 'undefined' ? window : global)",
   },
   build: {
     outDir: "dist",
     rollupOptions: {
       external: ["yahoo-finance2"],
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+        },
+      },
     },
   },
 }));
