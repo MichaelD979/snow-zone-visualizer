@@ -29,16 +29,18 @@ export const fetchHistoricalData = async (symbol: string): Promise<StockData[]> 
     
   } catch (error) {
     console.error("Error fetching stock data:", error);
-    throw new Error(`Failed to fetch data for ${symbol}`);
+    // Return empty array instead of throwing to prevent app crashes
+    return [];
   }
 };
 
-export const fetchLatestPrice = async (symbol: string): Promise<number> => {
+export const fetchLatestPrice = async (symbol: string): Promise<number | null> => {
   try {
     const quote = await yahooFinance.quote(symbol);
     return quote.regularMarketPrice || 0;
   } catch (error) {
     console.error("Error fetching latest price:", error);
-    throw new Error(`Failed to fetch latest price for ${symbol}`);
+    // Return null instead of throwing to prevent app crashes
+    return null;
   }
 };

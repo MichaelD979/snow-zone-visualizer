@@ -17,12 +17,19 @@ const Index = () => {
   const [previousClose, setPreviousClose] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const loadData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       // Fetch historical data
       const data = await fetchHistoricalData(STOCK_SYMBOL);
+      
+      if (data.length === 0) {
+        throw new Error("No historical data available");
+      }
+      
       setStockData(data);
       
       // Set previous close from historical data
@@ -32,11 +39,16 @@ const Index = () => {
       
       // Fetch latest price
       const price = await fetchLatestPrice(STOCK_SYMBOL);
-      setLatestPrice(price);
+      if (price === null) {
+        throw new Error("Could not fetch latest price");
+      }
       
+      setLatestPrice(price);
       setLastUpdated(new Date());
+      
     } catch (error) {
       console.error("Failed to load data:", error);
+      setError((error as Error).message || "Failed to load stock data");
       toast({
         title: "Error",
         description: "Failed to load stock data. Please try again.",
@@ -82,6 +94,12 @@ const Index = () => {
           {lastUpdated && (
             <p className="text-sm text-muted-foreground font-mono">
               Last updated: {lastUpdated.toLocaleTimeString()}
+            </p>
+          )}
+          
+          {error && (
+            <p className="text-sm text-destructive font-mono mt-2">
+              Error: {error}
             </p>
           )}
         </header>
