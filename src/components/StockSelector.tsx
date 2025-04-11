@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Check, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,13 +25,14 @@ interface StockSelectorProps {
 }
 
 const StockSelector: React.FC<StockSelectorProps> = ({
-  stocks,
+  stocks = [],  // Provide default empty array to prevent undefined
   selectedStock,
   onSelectStock,
   isLoading = false
 }) => {
   const [open, setOpen] = React.useState(false);
   
+  // Make sure to handle potentially undefined selectedStockDetails
   const selectedStockDetails = stocks.find(stock => stock.symbol === selectedStock);
 
   return (
@@ -62,7 +63,7 @@ const StockSelector: React.FC<StockSelectorProps> = ({
           <CommandInput placeholder="Search stock..." />
           <CommandEmpty>No stock found.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-y-auto">
-            {stocks.map((stock) => (
+            {Array.isArray(stocks) && stocks.map((stock) => (
               <CommandItem
                 key={stock.symbol}
                 value={`${stock.symbol} ${stock.name}`}

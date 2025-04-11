@@ -15,5 +15,10 @@ export const stockOptions: StockOption[] = [
   { symbol: "META", name: "Meta Platforms Inc.", sector: "Technology" },
   { symbol: "NVDA", name: "NVIDIA Corporation", sector: "Technology" },
   { symbol: "JPM", name: "JPMorgan Chase & Co.", sector: "Financial Services" },
-  { symbol: "V", name: "Visa Inc.", sector: "Financial Services" }
+  { symbol: "V", name: "Visa Inc.", sector: "Financial Services" },
+  { symbol: "DIS", name: "The Walt Disney Company", sector: "Communication Services" },
+  { symbol: "NFLX", name: "Netflix, Inc.", sector: "Communication Services" },
+  { symbol: "PYPL", name: "PayPal Holdings, Inc.", sector: "Financial Services" },
+  { symbol: "INTC", name: "Intel Corporation", sector: "Technology" },
+  { symbol: "AMD", name: "Advanced Micro Devices, Inc.", sector: "Technology" }
 ];
