@@ -5,7 +5,7 @@ import StockChart from "@/components/StockChart";
 import StockSummary from "@/components/StockSummary";
 import TradingZones from "@/components/TradingZones";
 import { fetchHistoricalData, fetchLatestPrice, StockData } from "@/services/stockService";
-import { RefreshCwIcon } from "lucide-react";
+import { RefreshCwIcon, TrendingUpIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const STOCK_SYMBOL = "SNOW";
@@ -70,7 +70,8 @@ const Index = () => {
         <header className="mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div>
-              <h1 className="text-3xl font-bold mb-1 font-mono bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold mb-1 font-sans bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent flex items-center">
+                <TrendingUpIcon className="mr-2 h-8 w-8 text-primary" />
                 Stock Trading Zones
               </h1>
               <p className="text-muted-foreground">
@@ -83,7 +84,7 @@ const Index = () => {
                 variant="outline" 
                 onClick={loadData}
                 disabled={isLoading}
-                className="font-mono text-sm"
+                className="font-medium shadow-sm transition-all hover:shadow-md"
               >
                 <RefreshCwIcon className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
                 Refresh Data
@@ -92,13 +93,13 @@ const Index = () => {
           </div>
           
           {lastUpdated && (
-            <p className="text-sm text-muted-foreground font-mono">
+            <p className="text-sm text-muted-foreground">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </p>
           )}
           
           {error && (
-            <p className="text-sm text-destructive font-mono mt-2">
+            <p className="text-sm text-destructive mt-2">
               Error: {error}
             </p>
           )}
@@ -118,7 +119,7 @@ const Index = () => {
           </div>
         </div>
         
-        <div className="mb-8">
+        <div className="mb-8 shadow-lg rounded-lg overflow-hidden">
           <StockChart 
             data={stockData} 
             symbol={STOCK_SYMBOL} 

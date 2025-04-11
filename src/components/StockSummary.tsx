@@ -2,8 +2,9 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, calculatePercentChange } from "@/utils/stockUtils";
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { ArrowUpIcon, ArrowDownIcon, InfoIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface StockSummaryProps {
   symbol: string;
@@ -27,9 +28,19 @@ const StockSummary: React.FC<StockSummaryProps> = ({
   const isPriceUp = percentChange !== null ? percentChange >= 0 : false;
   
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-mono">{symbol}</CardTitle>
+    <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
+      <CardHeader className="pb-2 flex flex-row justify-between items-center">
+        <CardTitle className="text-xl">{symbol}</CardTitle>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InfoIcon className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Latest stock price information</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -39,7 +50,7 @@ const StockSummary: React.FC<StockSummaryProps> = ({
           </div>
         ) : (
           <>
-            <div className="text-3xl font-bold font-mono">
+            <div className="text-3xl font-bold">
               {latestPrice ? formatCurrency(latestPrice) : "N/A"}
             </div>
             
@@ -50,9 +61,15 @@ const StockSummary: React.FC<StockSummaryProps> = ({
                 ) : (
                   <ArrowDownIcon className="h-4 w-4 mr-1" />
                 )}
-                <span className="font-mono text-sm">
+                <span className="text-sm font-medium">
                   {percentChange.toFixed(2)}% {isPriceUp ? "up" : "down"}
                 </span>
+              </div>
+            )}
+            
+            {previousClose && (
+              <div className="text-xs text-muted-foreground mt-2">
+                Previous close: {formatCurrency(previousClose)}
               </div>
             )}
           </>

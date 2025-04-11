@@ -2,7 +2,8 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/utils/stockUtils";
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { ArrowUpIcon, ArrowDownIcon, DollarSignIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface TradingZonesProps {
   currentPrice: number | null;
@@ -38,22 +39,28 @@ const TradingZones: React.FC<TradingZonesProps> = ({ currentPrice }) => {
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Card className={isInBuyZone ? "border-buy" : ""}>
+      <Card className={`shadow-md hover:shadow-lg transition-shadow duration-300 ${isInBuyZone ? "bg-buy-light border-buy" : ""}`}>
         <CardHeader className="pb-2">
-          <CardTitle className="flex items-center text-lg font-mono text-buy">
-            <ArrowDownIcon className="h-4 w-4 mr-2" />
+          <CardTitle className="flex items-center text-lg">
+            <ArrowDownIcon className="h-4 w-4 mr-2 text-buy" />
             Buy Zone
+            {isInBuyZone && (
+              <Badge variant="outline" className="ml-2 bg-buy/20 text-buy border-buy">
+                Active
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="font-mono">
+          <div className="flex items-center font-medium text-lg">
+            <DollarSignIcon className="h-4 w-4 mr-1 text-muted-foreground" />
             {formatCurrency(BUY_ZONE_MIN)} - {formatCurrency(BUY_ZONE_MAX)}
           </div>
           
           {currentPrice !== null && (
-            <div className="mt-2 text-sm text-muted-foreground font-mono">
+            <div className="mt-2 text-sm text-muted-foreground">
               {isInBuyZone ? (
-                <span className="text-buy font-bold">Currently in buy zone</span>
+                <span className="text-buy font-medium">Currently in buy zone</span>
               ) : distanceToBuyZone !== null ? (
                 <span>{formatCurrency(distanceToBuyZone)} below buy zone</span>
               ) : (
@@ -64,22 +71,28 @@ const TradingZones: React.FC<TradingZonesProps> = ({ currentPrice }) => {
         </CardContent>
       </Card>
       
-      <Card className={isInSellZone ? "border-sell" : ""}>
+      <Card className={`shadow-md hover:shadow-lg transition-shadow duration-300 ${isInSellZone ? "bg-sell-light border-sell" : ""}`}>
         <CardHeader className="pb-2">
-          <CardTitle className="flex items-center text-lg font-mono text-sell">
-            <ArrowUpIcon className="h-4 w-4 mr-2" />
+          <CardTitle className="flex items-center text-lg">
+            <ArrowUpIcon className="h-4 w-4 mr-2 text-sell" />
             Sell Zone
+            {isInSellZone && (
+              <Badge variant="outline" className="ml-2 bg-sell/20 text-sell border-sell">
+                Active
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="font-mono">
+          <div className="flex items-center font-medium text-lg">
+            <DollarSignIcon className="h-4 w-4 mr-1 text-muted-foreground" />
             {formatCurrency(SELL_ZONE_MIN)} - {formatCurrency(SELL_ZONE_MAX)}
           </div>
           
           {currentPrice !== null && (
-            <div className="mt-2 text-sm text-muted-foreground font-mono">
+            <div className="mt-2 text-sm text-muted-foreground">
               {isInSellZone ? (
-                <span className="text-sell font-bold">Currently in sell zone</span>
+                <span className="text-sell font-medium">Currently in sell zone</span>
               ) : distanceToSellZone !== null ? (
                 <span>{formatCurrency(distanceToSellZone)} below sell zone</span>
               ) : (
