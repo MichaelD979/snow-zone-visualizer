@@ -41,4 +41,10 @@ export default defineConfig(({ mode }) => ({
       "(typeof window !== 'undefined' && window.URLSearchParams) || URLSearchParams",
     global: "(typeof window !== 'undefined' ? window : global)",
   },
+  build: {
+    outDir: "dist",
+    rollupOptions: {
+      external: ["yahoo-finance2"],
+    },
+  },
 }));
