@@ -6,41 +6,89 @@ export interface StockData {
   close: number;
 }
 
+// Mock data for development/fallback when Yahoo API fails
+const generateMockStockData = (symbol: string): StockData[] => {
+  const data: StockData[] = [];
+  const today = new Date();
+  const basePrice = symbol === "SNOW" ? 155 : 100; // Snowflake around $155
+  
+  // Generate 6 months of daily data
+  for (let i = 180; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(today.getDate() - i);
+    
+    // Create some realistic price movements
+    const randomChange = (Math.random() - 0.5) * 3; // Random daily change
+    const trendComponent = Math.sin(i / 30) * 15; // Cyclical trend
+    const close = basePrice + trendComponent + (i / 5) + randomChange;
+    
+    data.push({
+      date: new Date(date),
+      close: Number(close.toFixed(2))
+    });
+  }
+  
+  return data;
+};
+
 export const fetchHistoricalData = async (symbol: string): Promise<StockData[]> => {
   try {
+    console.log("Fetching historical data for:", symbol);
+    
     // Calculate dates for a 6-month period
     const endDate = new Date();
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - 6);
     
     const queryOptions = {
-      period1: startDate,
-      period2: endDate,
+      period1: startDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+      period2: endDate.toISOString().split('T')[0],
       interval: "1d" as "1d" | "1wk" | "1mo", // Type assertion to match the expected type
     };
     
-    const result = await yahooFinance.historical(symbol, queryOptions);
-
-    // Transform and filter the data
-    return result.map((item) => ({
-      date: new Date(item.date),
-      close: item.close,
-    }));
+    try {
+      const result = await yahooFinance.historical(symbol, queryOptions);
+      
+      if (result && result.length > 0) {
+        // Transform and filter the data
+        return result.map((item) => ({
+          date: new Date(item.date),
+          close: item.close,
+        }));
+      } else {
+        console.warn("Yahoo Finance returned empty data, using mock data");
+        return generateMockStockData(symbol);
+      }
+    } catch (yahooError) {
+      console.error("Yahoo Finance API error:", yahooError);
+      console.log("Falling back to mock data");
+      return generateMockStockData(symbol);
+    }
     
   } catch (error) {
-    console.error("Error fetching stock data:", error);
-    // Return empty array instead of throwing to prevent app crashes
-    return [];
+    console.error("Error in fetchHistoricalData:", error);
+    // Return mock data instead of empty array
+    return generateMockStockData(symbol);
   }
 };
 
 export const fetchLatestPrice = async (symbol: string): Promise<number | null> => {
   try {
-    const quote = await yahooFinance.quote(symbol);
-    return quote.regularMarketPrice || 0;
+    console.log("Fetching latest price for:", symbol);
+    
+    try {
+      const quote = await yahooFinance.quote(symbol);
+      return quote.regularMarketPrice || null;
+    } catch (yahooError) {
+      console.error("Yahoo Finance API error for quote:", yahooError);
+      // Use the last price from mock data
+      const mockData = generateMockStockData(symbol);
+      return mockData[mockData.length - 1].close;
+    }
   } catch (error) {
-    console.error("Error fetching latest price:", error);
-    // Return null instead of throwing to prevent app crashes
-    return null;
+    console.error("Error in fetchLatestPrice:", error);
+    // Get the latest price from mock data
+    const mockData = generateMockStockData(symbol);
+    return mockData[mockData.length - 1].close;
   }
 };

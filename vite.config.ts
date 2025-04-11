@@ -21,9 +21,11 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
-    // Polyfill for Node.js process global
-    "process.env": {},
+    // Improved Polyfills for Node.js process global
+    "process.env": JSON.stringify({}),
     "process.browser": true,
-    "process.version": JSON.stringify(process.version),
+    "process.version": JSON.stringify("16.14.0"),
+    "process.nextTick": "(cb) => setTimeout(cb, 0)",
+    global: "window",
   },
 }));
