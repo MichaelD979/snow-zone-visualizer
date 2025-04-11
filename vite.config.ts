@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/yahoo-finance": {
+        target: "https://finance.yahoo.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/yahoo-finance/, ""),
+        secure: false,
+      },
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
@@ -24,10 +32,13 @@ export default defineConfig(({ mode }) => ({
     "process.version": JSON.stringify("16.14.0"),
     // Properly define process.nextTick as a function (not wrapped in JSON.stringify)
     "process.nextTick": "function(cb) { return setTimeout(cb, 0); }",
-    // Add URLSearchParams polyfill
-    "global.URLSearchParams": "window.URLSearchParams",
-    URLSearchParams: "window.URLSearchParams",
-    URLSearchParams2: "window.URLSearchParams",
-    global: "window",
+    // Add URLSearchParams polyfill - properly defined as constructor functions
+    "global.URLSearchParams":
+      "(typeof window !== 'undefined' && window.URLSearchParams) || URLSearchParams",
+    URLSearchParams:
+      "(typeof window !== 'undefined' && window.URLSearchParams) || URLSearchParams",
+    URLSearchParams2:
+      "(typeof window !== 'undefined' && window.URLSearchParams) || URLSearchParams",
+    global: "(typeof window !== 'undefined' ? window : global)",
   },
 }));

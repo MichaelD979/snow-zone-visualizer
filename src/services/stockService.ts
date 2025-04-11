@@ -1,9 +1,48 @@
 import yahooFinance from "yahoo-finance2";
 
+// Check if we're in a browser environment
+const isBrowser = typeof window !== "undefined";
+
 export interface StockData {
   date: Date;
   close: number;
 }
+
+interface ApiResponseItem {
+  date: string;
+  close: number;
+}
+
+const API_BASE_URL = "http://localhost:3001";
+
+// Rate limiting configuration
+const RATE_LIMIT_DELAY = 1000; // 1 second delay between requests
+let lastRequestTime = 0;
+
+// Helper function to enforce rate limiting
+const enforceRateLimit = async () => {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
+    await new Promise((resolve) =>
+      setTimeout(resolve, RATE_LIMIT_DELAY - timeSinceLastRequest)
+    );
+  }
+  lastRequestTime = Date.now();
+};
+
+// Validate stock data
+const validateStockData = (data: StockData[]): boolean => {
+  if (!Array.isArray(data) || data.length === 0) return false;
+
+  return data.every(
+    (item) =>
+      item.date instanceof Date &&
+      typeof item.close === "number" &&
+      !isNaN(item.close) &&
+      item.close > 0
+  );
+};
 
 // Mock data for development/fallback when Yahoo API fails
 const generateMockStockData = (symbol: string): StockData[] => {
@@ -51,66 +90,75 @@ const generateMockStockData = (symbol: string): StockData[] => {
 };
 
 export const fetchHistoricalData = async (
-  symbol: string
+  symbol: string,
+  retries: number = 3
 ): Promise<StockData[]> => {
   try {
     console.log("Fetching historical data for:", symbol);
 
-    // Calculate dates for a 6-month period
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 6);
+    const response = await fetch(
+      `${API_BASE_URL}/api/stock?symbol=${encodeURIComponent(symbol)}`
+    );
 
-    const queryOptions = {
-      period1: startDate.toISOString().split("T")[0], // Format as YYYY-MM-DD
-      period2: endDate.toISOString().split("T")[0],
-      interval: "1d" as "1d" | "1wk" | "1mo", // Type assertion to match the expected type
-    };
-
-    try {
-      const result = await yahooFinance.historical(symbol, queryOptions);
-
-      if (result && result.length > 0) {
-        // Transform and filter the data
-        return result.map((item) => ({
-          date: new Date(item.date),
-          close: item.close,
-        }));
-      } else {
-        console.warn("Yahoo Finance returned empty data, using mock data");
-        return generateMockStockData(symbol);
-      }
-    } catch (yahooError) {
-      console.error("Yahoo Finance API error:", yahooError);
-      console.log("Falling back to mock data");
-      return generateMockStockData(symbol);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch stock data");
     }
+
+    const data = (await response.json()) as ApiResponseItem[];
+    return data.map((item) => ({
+      date: new Date(item.date),
+      close: item.close,
+    }));
   } catch (error) {
-    console.error("Error in fetchHistoricalData:", error);
-    // Return mock data instead of empty array
-    return generateMockStockData(symbol);
+    console.error("Error fetching historical data:", error);
+
+    if (retries > 0) {
+      console.log(`Retrying... (${retries} attempts remaining)`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      return fetchHistoricalData(symbol, retries - 1);
+    }
+
+    throw new Error(
+      `Failed to fetch historical data for ${symbol} after multiple attempts: ${error.message}`
+    );
   }
 };
 
 export const fetchLatestPrice = async (
-  symbol: string
-): Promise<number | null> => {
+  symbol: string,
+  retries: number = 3
+): Promise<number> => {
   try {
     console.log("Fetching latest price for:", symbol);
 
-    try {
-      const quote = await yahooFinance.quote(symbol);
-      return quote.regularMarketPrice || null;
-    } catch (yahooError) {
-      console.error("Yahoo Finance API error for quote:", yahooError);
-      // Use the last price from mock data
-      const mockData = generateMockStockData(symbol);
-      return mockData[mockData.length - 1].close;
+    const response = await fetch(
+      `${API_BASE_URL}/api/stock?symbol=${encodeURIComponent(symbol)}`
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch stock data");
     }
+
+    const data = (await response.json()) as ApiResponseItem[];
+    if (!data || data.length === 0) {
+      throw new Error("No data received");
+    }
+
+    // Return the most recent price
+    return data[data.length - 1].close;
   } catch (error) {
-    console.error("Error in fetchLatestPrice:", error);
-    // Get the latest price from mock data
-    const mockData = generateMockStockData(symbol);
-    return mockData[mockData.length - 1].close;
+    console.error("Error fetching latest price:", error);
+
+    if (retries > 0) {
+      console.log(`Retrying... (${retries} attempts remaining)`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      return fetchLatestPrice(symbol, retries - 1);
+    }
+
+    throw new Error(
+      `Failed to fetch latest price for ${symbol} after multiple attempts: ${error.message}`
+    );
   }
 };
