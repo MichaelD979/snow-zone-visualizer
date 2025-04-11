@@ -22,7 +22,12 @@ export default defineConfig(({ mode }) => ({
     "process.env": JSON.stringify({}),
     "process.browser": true,
     "process.version": JSON.stringify("16.14.0"),
-    "process.nextTick": "function(cb) { return setTimeout(cb, 0); }", // Fixed syntax for build compatibility
+    // Properly define process.nextTick as a function (not wrapped in JSON.stringify)
+    "process.nextTick": "function(cb) { return setTimeout(cb, 0); }",
+    // Add URLSearchParams polyfill
+    "global.URLSearchParams": "window.URLSearchParams",
+    URLSearchParams: "window.URLSearchParams",
+    URLSearchParams2: "window.URLSearchParams",
     global: "window",
   },
 }));
