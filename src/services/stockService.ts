@@ -16,7 +16,7 @@ export const fetchHistoricalData = async (symbol: string): Promise<StockData[]> 
     const queryOptions = {
       period1: startDate,
       period2: endDate,
-      interval: "1d", // Daily data
+      interval: "1d" as "1d" | "1wk" | "1mo", // Type assertion to match the expected type
     };
     
     const result = await yahooFinance.historical(symbol, queryOptions);
