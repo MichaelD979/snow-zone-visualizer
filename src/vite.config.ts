@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
     "process.browser": true,
     "process.version": JSON.stringify("16.14.0"),
     // Use a proper JSON-serializable function string for the nextTick polyfill
-    //"process.nextTick": "function(cb) { return setTimeout(cb, 0); }",
+    "process.nextTick": "function(cb) { return setTimeout(cb, 0); }",
     global: "window",
   },
 }));

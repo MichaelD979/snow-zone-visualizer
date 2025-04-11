@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
     "process.env": JSON.stringify({}),
     "process.browser": true,
     "process.version": JSON.stringify("16.14.0"),
-    //"process.nextTick": "function(cb) { return setTimeout(cb, 0); }", // Fixed syntax for build compatibility
+    "process.nextTick": "function(cb) { return setTimeout(cb, 0); }", // Fixed syntax for build compatibility
     global: "window",
   },
 }));
